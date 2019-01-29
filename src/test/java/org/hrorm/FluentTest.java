@@ -12,14 +12,9 @@ public class FluentTest {
 
     @Test
     public void fluentExample() {
-/*
-        private String stringColumn;
-        private long integerColumn;
-        private BigDecimal decimalColumn;
-        private boolean booleanColumn;
-        private LocalDateTime timeStampColumn;
-        */
-
+        // The Keyless.class Generic on Compound is populated down to Field-
+        // This allows us to enforce field() to limit to methods on the Keyless class, specifically
+        // ones that produce the type of value we are looking for in equalTo/lessThan/greaterThan.
         Compound<Keyless> keylessCompund = new Compound<>(Keyless.class)
                 .field("string_column", Keyless::getStringColumn)
                 .equalTo("value")
