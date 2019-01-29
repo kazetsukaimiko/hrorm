@@ -21,13 +21,15 @@ public class FluentTest {
                 .and() // Can be omitted if you're in a string of ands
                 .field("integer_column", Keyless::getIntegerColumn)
                 .equalTo(0L)
-                .field("timeStampColumn", Keyless::getTimeStampColumn)
-                .lessThan(LocalDateTime.now().minus(Duration.of(4, ChronoUnit.DAYS)));
+                .or()
+                    .field("timeStampColumn", Keyless::getTimeStampColumn)
+                    .lessThan(LocalDateTime.now().minus(Duration.of(4, ChronoUnit.DAYS)));
+
 
         // Thinking:
         // Dao<Keyless> keylessDao = //...
         /*
-        keylessDao.selectComplex()
+        List<String>keylessDao.selectComplex()
                 .field("string_column", Keyless::getStringColumn)
                 .equalTo("value")
                 .and() // Can be omitted if you're in a string of ands

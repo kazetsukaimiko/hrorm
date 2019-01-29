@@ -29,6 +29,10 @@ public class Compound<ENTITY> extends Conditional<ENTITY> {
             return this;
         }
         Compound<ENTITY> andCompound = new Compound<>(entityClass, FunctionalOperator.AND, this);
+        if (conditionals.size()>0) {
+            andCompound.append(conditionals.get(conditionals.size()-1));
+            conditionals.remove(conditionals.size()-1);
+        }
         conditionals.add(andCompound);
         return andCompound;
     }
@@ -38,6 +42,10 @@ public class Compound<ENTITY> extends Conditional<ENTITY> {
             return this;
         }
         Compound<ENTITY> orCompound = new Compound<>(entityClass, FunctionalOperator.OR, this);
+        if (conditionals.size()>0) { // Remove the last conditional to be consistent with and/or ops.
+            orCompound.append(conditionals.get(conditionals.size()-1));
+            conditionals.remove(conditionals.size()-1);
+        }
         conditionals.add(orCompound);
         return orCompound;
     }
@@ -54,8 +62,15 @@ public class Compound<ENTITY> extends Conditional<ENTITY> {
         return parent;
     }
 
-    public <FIELDTYPE> Compound<ENTITY> append(FieldConditional<ENTITY, FIELDTYPE> fieldConditional) {
-        conditionals.add(fieldConditional);
+    public Compound<ENTITY> top() {
+        if (hasParent()) {
+            return parent.top();
+        }
+        return this;
+    }
+
+    public <FIELDTYPE> Compound<ENTITY> append(Conditional<ENTITY> conditional) {
+        conditionals.add(conditional);
         return this;
     }
 }
