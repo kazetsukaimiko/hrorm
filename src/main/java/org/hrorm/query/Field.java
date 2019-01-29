@@ -1,6 +1,7 @@
 package org.hrorm.query;
 
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class Field<ENTITY, FIELDTYPE> {
     private final String columnName;
@@ -26,6 +27,11 @@ public class Field<ENTITY, FIELDTYPE> {
         return compound.append(fieldConditional);
     }
 
+    public Compound<ENTITY> notEqualTo(FIELDTYPE value) {
+        FieldConditional<ENTITY, FIELDTYPE> fieldConditional = new FieldConditional<>(this, ComparisonOperator.NOT_EQUALS, value);
+        return compound.append(fieldConditional);
+    }
+
     public Compound<ENTITY> greaterThan(FIELDTYPE value) {
         FieldConditional<ENTITY, FIELDTYPE> fieldConditional = new FieldConditional<>(this, ComparisonOperator.GREATER_THAN, value);
         return compound.append(fieldConditional);
@@ -41,5 +47,14 @@ public class Field<ENTITY, FIELDTYPE> {
         return compound.append(fieldConditional);
     }
 
+    public Compound<ENTITY> in(Stream<FIELDTYPE> values) {
+        FieldMultiConditional<ENTITY, FIELDTYPE> fieldMultiConditional = new FieldMultiConditional<>(this, MultiComparisonOperator.IN, values);
+        return compound.append(fieldMultiConditional);
+    }
+
+    public Compound<ENTITY> notIn(Stream<FIELDTYPE> values) {
+        FieldMultiConditional<ENTITY, FIELDTYPE> fieldMultiConditional = new FieldMultiConditional<>(this, MultiComparisonOperator.NOT_IN, values);
+        return compound.append(fieldMultiConditional);
+    }
 
 }
