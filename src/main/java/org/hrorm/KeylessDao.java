@@ -1,5 +1,8 @@
 package org.hrorm;
 
+import org.hrorm.query.Conditional;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -116,4 +119,8 @@ public interface KeylessDao<ENTITY> {
      */
     <T> T foldingSelect(ENTITY template, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames);
 
+    default List<ENTITY> select(Conditional<ENTITY> conditional) {
+        //return new KeylessQueryBuilder<>(this);
+        return new ArrayList<>();
+    }
 }

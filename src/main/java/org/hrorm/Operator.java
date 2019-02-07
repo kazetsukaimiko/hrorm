@@ -61,12 +61,25 @@ public class Operator {
      */
     public static final Operator EQUALS = new Operator("=");
 
+
+    /**
+     * An instance that represents the equality ('=') operator.
+     */
+    public static final Operator NOT_EQUALS = new Operator("!=");
+
     /**
      * An instance that represents the 'LIKE' operator to be used
      * for string fields. The ampersand character is a wildcard in
      * SQL, matching zero or more of any characters.
      */
     public static final Operator LIKE = new Operator("LIKE");
+
+    /**
+     * An instance that represents the 'NOT LIKE' operator to be used
+     * for string fields. The ampersand character is a wildcard in
+     * SQL, matching zero or more of any characters.
+     */
+    public static final Operator NOT_LIKE = new Operator("NOT LIKE");
 
     /**
      * An instance that represents the less than ('&lt;') operator.
@@ -226,6 +239,16 @@ public class Operator {
      */
     public String getSqlString(String columnName){
         return sqlString.replace("@", columnName);
+    }
+
+    /**
+     * Returns the text to be inserted in the SQL statement being built.
+     * This is not generally useful to hrorm clients.
+     *
+     * @return The text to insert into the SQL.
+     */
+    public String getSqlString(){
+        return sqlString;
     }
 
     /**

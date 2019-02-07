@@ -1,7 +1,6 @@
 package org.hrorm.examples;
 
 import lombok.Data;
-import org.hrorm.Converter;
 import org.hrorm.Dao;
 import org.hrorm.DaoBuilder;
 import org.junit.Assert;

@@ -1,7 +1,5 @@
 package org.hrorm;
 
-import static org.hrorm.examples.Complex.*;
-
 import org.hrorm.h2.H2Helper;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
@@ -13,6 +11,8 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.hrorm.examples.Complex.*;
 
 public class ComplexTest {
 

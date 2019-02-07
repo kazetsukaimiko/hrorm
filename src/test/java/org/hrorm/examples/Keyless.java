@@ -2,6 +2,9 @@ package org.hrorm.examples;
 
 import lombok.Data;
 import org.hrorm.IndirectKeylessDaoBuilder;
+import org.hrorm.query.Field;
+import org.hrorm.query.StringField;
+import org.hrorm.query.TemporalField;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -9,6 +12,13 @@ import java.util.Objects;
 
 @Data
 public class Keyless {
+
+    //public static final Field<Keyless, String> STRING_FIELD = new Field<>("string")
+    public static final StringField<Keyless, String> STRING_FIELD = new StringField<>("string_column", Keyless::getStringColumn, Keyless::setStringColumn);
+    public static final Field<Keyless, Long> INTEGER_FIELD = new Field<>("integer_column", Keyless::getIntegerColumn, Keyless::setIntegerColumn);
+    public static final Field<Keyless, BigDecimal> DECIMAL_FIELD = new Field<>("decimal_column", Keyless::getDecimalColumn, Keyless::setDecimalColumn);
+    public static final Field<Keyless, Boolean> BOOLEAN_FIELD = new Field<>("boolean_column", Keyless::isBooleanColumn, Keyless::setBooleanColumn);
+    public static final TemporalField<Keyless, LocalDateTime> TIMESTAMP_FIELD = new TemporalField<>("timestamp_column", Keyless::getTimeStampColumn, Keyless::setTimeStampColumn);
 
     public static final IndirectKeylessDaoBuilder<Keyless, Keyless> DAO_BUILDER =
             new IndirectKeylessDaoBuilder<>("keyless_table", Keyless::new, x->x)
@@ -23,6 +33,8 @@ public class Keyless {
     private BigDecimal decimalColumn;
     private boolean booleanColumn;
     private LocalDateTime timeStampColumn;
+
+
 
 
     @Override
