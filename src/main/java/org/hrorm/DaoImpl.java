@@ -3,7 +3,6 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     }
 
     @Override
-    public Optional<Long> insert(ENTITY item) {
+    public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
         long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
         primaryKey.optimisticSetKey(item, id);
@@ -47,8 +46,9 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
             childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
         }
-        return Optional.of(id);
+        return id;
     }
+
 
     @Override
     public void update(ENTITY item) {
@@ -75,10 +75,11 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         ENTITY item = buildFunction.apply(builder);
         logger.info("Searching by " + id + " for " + item);
         List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier,
-                Collections.singletonList(primaryKeyName), columnMap(primaryKeyName),
+                new SelectColumnList(primaryKeyName), columnMap(primaryKeyName),
                 childrenDescriptors, item);
         return fromSingletonList(mapBuilders(items));
     }
+
 
     @Override
     public List<ENTITY> selectMany(List<Long> ids) {
@@ -106,8 +107,10 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         );
     }
 
+
     @Override
     public PrimaryKey<ENTITY, BUILDER> primaryKey() { return primaryKey; }
+
 
     @Override
     public Queries queries() {

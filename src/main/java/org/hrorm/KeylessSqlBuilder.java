@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 
 /**
  * This class generates SQL strings suitable to be used in
- * {@link java.sql.PreparedStatement}s.
+ * {@link java.sql.PreparedStatement}s used by {@link KeylessDao}s.
  *
  * <p>
  *
@@ -109,14 +109,16 @@ public class KeylessSqlBuilder<ENTITY> {
         listToBuild.add(0, columnToAdd);
     }
 
-    public String selectByColumns(String ... columnNames){
+    public String selectByColumns(SelectColumnList selectColumnList){
         StringBuilder buf = new StringBuilder();
         buf.append(select());
-        for(String columnName : columnNames){
+        for(SelectColumnList.ColumnOperatorEntry columnEntry : selectColumnList){
             buf.append(" and ");
             buf.append("a.");
-            buf.append(columnName);
-            buf.append(" = ? ");
+            buf.append(columnEntry.rawName);
+            buf.append(" ");
+            buf.append(columnEntry.getSqlString());
+            buf.append(" ? ");
         }
 
         return buf.toString();

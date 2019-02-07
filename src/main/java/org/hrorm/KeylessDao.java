@@ -1,12 +1,13 @@
 package org.hrorm;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 /**
- * A <code>Dao</code> is an interface that allows basic CRUD operations to be performed.
- * Using a <code>Dao</code>, you can insert, select, update, and delete records.
+ * A <code>KeylessDao</code> is an interface that allows basic, non-singular CRUD operations to be performed.
+ * Using a <code>KeylessDao</code>, you can insert, records individually, but select, update, and delete all are limited
+ * to multi-row operations, as there is no Primary Key defined.
  *
  * @param <ENTITY> The type of the data to be persisted.
  */
@@ -24,7 +25,7 @@ public interface KeylessDao<ENTITY> {
      * @param item The instance to be inserted.
      * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
      */
-    Optional<Long> insert(ENTITY item);
+    Long insert(ENTITY item);
 
 
     /**
@@ -40,13 +41,39 @@ public interface KeylessDao<ENTITY> {
     /**
      * Select multiple records from the database by some search criteria.
      *
-     * @param item An instance of type ENTITY with populated values corresponding to the
+     * <p>The SQL generated will specify a select by the column names passed,
+     * where the values are equal to the values specified in the passed template
+     * object. All the values must match, as the where clause will be formed
+     * by joining the various column names with 'AND'.
+     * </p>
+     *
+     * @param template An instance of type ENTITY with populated values corresponding to the
      *             column names to select by.
      * @param columnNames The names of the database columns
      * @return The populated instances of type ENTITY with matching values with the passed item for
      *         the indicated columnNames.
      */
-    List<ENTITY> selectManyByColumns(ENTITY item, String... columnNames);
+    List<ENTITY> selectManyByColumns(ENTITY template, String... columnNames);
+
+    /**
+     * Select multiple records from the database by some search criteria.
+     *
+     * <p>
+     * This method will perform a select on the database and return the results
+     * found. The where clause will be generated to include tests of the column
+     * names specified in the <code>columnNames</code> parameter. Each entry in
+     * that <code>Map</code> should be accompanied by an <code>Operation</code>
+     * specifying what comparison should be used, e.g. =, LIKE, &gt;, etc.
+     * </p>
+     *
+     * @param template An instance of type ENTITY with populated values corresponding to the
+     *                column names to select by.
+     * @param columnNames The names of the database columns paired with the operation
+     *                    that should be used to construct the SQL select statement.
+     * @return The populated instances of type ENTITY with matching values with the passed item for
+     *         the indicated columnNames.
+     */
+    List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNames);
 
     /**
      * Select a single record from the database by some search criteria.
@@ -62,29 +89,6 @@ public interface KeylessDao<ENTITY> {
     ENTITY selectByColumns(ENTITY item, String... columnNames);
 
     /**
-     * Deletes multiple records from the database by some search criteria.
-     *
-     * @param item An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
-     * @param columnNames The names of the database columns
-     *
-     */
-    // List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames);
-
-    /**
-     * Update multiple records from the database by some search criteria.
-     *
-     * @param selectionItem An instance of type ENTITY with populated values corresponding to the
-     *             column names to select by.
-     * @param selectionColumnNames The names of the database columns to select by.
-     *
-     * @param updateItem An instance of type ENTITY with populated values corresponding to the
-     *             column names to update to.
-     * @param updateColumnNames The names of the database columns to update.
-     */
-    // List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames);
-
-    /**
      * Insert a record into the database within a transaction that is
      * managed within the Dao. The Dao will either commit or rollback
      * the transaction and <b>close the underlying <code>Connection</code></b>
@@ -93,7 +97,7 @@ public interface KeylessDao<ENTITY> {
      * @param item The instance to be inserted.
      * @return The newly issued primary key of the record, if there is one. Else, Optional.empty()
      */
-    Optional<Long> atomicInsert(ENTITY item);
+    Long atomicInsert(ENTITY item);
 
 
     /**

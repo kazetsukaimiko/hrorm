@@ -24,4 +24,8 @@ Hrorm requires Java 8.
 * Expose fields in addition to columns in select statements (either set on columns at
 create time, or derive from get/set method names)
 * Add support for more Java types
-
+* Perhaps add a KeylessDaoBuilder: but need to think about how best to share code among 
+all the DAO builder classes while still supporting the clean types
+* Support selects that are connected with "OR" statements, not just "AND"
+* Support different types, e.g. String GUIDs, for primary keys
+* Add methods that allow for updates and deletes based on criteria other than primary key

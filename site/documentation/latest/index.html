@@ -34,6 +34,7 @@
                 <a href="#parent_child_relations" class="sublink-1">Parent-Child Relations</a>
                 <a href="#sibling_relations" class="sublink-1">Sibling Relations</a>
                 <a href="#immutable_models" class="sublink-1">Immutable Models</a>
+                <a href="#keyless_entities" class="sublink-1">Keyless Entities</a>
                 <a href="#constraints" class="sublink-1">Constraints</a>
                 <a href="#validation" class="sublink-1">Validation</a>
 
@@ -677,6 +678,26 @@
             </div>
 
 
+            <div class="card fluid">
+
+                <a name="keyless_entities"></a>
+                <h3>Keyless Entities</h3>
+
+                <hr>
+
+                <p>Hrorm is built to support tables that have sequence valued primary keys. This is generally
+                a good way to design a schema, but it's not always optimal. For instance, if you are storing
+                an event stream in a database, assigning keys might just be a waste of time and space.</p>
+
+                <p>Hrorm does have some mechanisms for supporting entities that do not have primary
+                keys. But, you cannot create a full-featured <code>Dao</code> for an entity without
+                a primary key. In these cases, you can create a <code>KeylessDao</code> which
+                has fewer methods.</p>
+
+                <p>Another drawback to the entities that are keyless is that they cannot be used as
+                child or sibling entities. Hrorm manages all relationships via keys.</p>
+            </div>
+
             <a name="constraints"></a>
             <div class="card fluid">
                 <h3>Constraints</h3>
@@ -830,21 +851,48 @@
 
                 <p>Most of the time, you do not know up front what ID or IDs you are intersted in, so
                     hrorm allows you to select by columns. To do this, we make an instance of the entity
-                    we are searching for and populate it with the values we want to match. Suppose we want
-                    to find all the people who are high school graduates that weigh 100 kilograms. Here's what
-                    we can do.</p>
+                    we are searching for and populate it with the values we want to match or compare to. Suppose we want
+                    to find all the people who are high school graduates and that weigh more than 100 kilograms
+                    and who have the string fragment "Bart" in their names. We start by creating an instance
+                    of the entity with the critical values to be included in our query.</p>
 
                 <pre>
     Person personTemplate = new Person();
     personTemplate.setHighSchoolGraduate(true);
     personTemplate.setWeight(100L);
+    personTemplate.setName("%Bart%");</pre>
 
-    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT");</pre>
+                <p>Then, we create a <code>Map</code> detailing what columns we are interested in and
+                what comparisons to use when running the query.</p>
 
-                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.</p>
+                <pre>
+    Map&lt;String, Operator&gt; columnMap = new HashMap&lt;&gt;();
+    columnMap.put("IS_HIGH_SCHOOL_GRADUATE", Operator.EQUALS);
+    columnMap.put("WEIGHT", Operator.GREATER_THAN);
+    columnMap.put("NAME", Operator.LIKE);</pre>
+
+                <p>Now we are ready to query for all the matching records.</p>
+
+                <pre>
+    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, columnMap);</pre>
+
+                <p>Notice that hrorm wants the names of the database <b>columns</b>, not the fields on the object.
+                Also note that query generated will link the various parts of the where clause with "AND"s. The
+                returned records will match all the specified criteria.</p>
+
+                <p>In addition to the like, equals, and comparison operators, hrorm supports creating ranges
+                for numeric and date types that support comparison. There are methods for both open and closed
+                ranges. The value for the field in question set in the template object becomes the low end of
+                the range, and the methods for creating the ranges accept the upper limit as an argument.</p>
+
+                <p>If we want to find records using only the equals operator, hrorm provides a convenience
+                method that does not require us to build the column name-operator map.</p>
+
+                <pre>
+    List&lt;Person&gt; people = personDao.selectManyByColumns(personTemplate, "IS_HIGH_SCHOOL_GRADUATE", "WEIGHT", "NAME");</pre>
 
                 <p>If we know that a particular query will only return 0 or 1 results (for instance, if there is
-                    a uniqueness constraint on the name field), hrorm provides a convenience method for that.</p>
+                    a uniqueness constraint on the name field), hrorm provides a further convenience method for that.</p>
 
                 <pre>
     Person personTemplate = new Person();
@@ -853,8 +901,6 @@
     Person person = personDao.selectByColumns(personTemplate, "NAME");</pre>
 
                 <p>If you use this method and hrorm finds more than one record, it will raise an exception.</p>
-
-                <p>At the moment, hrorm only supports exact matches, not any <code>LIKE</code> syntax.</p>
 
             </div>
 

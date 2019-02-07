@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.function.BiConsumer;
@@ -57,7 +58,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         String sql = sqlBuilder.selectByColumns(parentChildColumnName());
         SqlRunner<CHILD,CHILDBUILDER> sqlRunner = new SqlRunner<>(connection, childDaoDescriptor);
-        List<String> parentChildColumnNameList = Collections.singletonList(parentChildColumnName());
+        SelectColumnList parentChildColumnNameList = new SelectColumnList(parentChildColumnName());
         List<ChildrenDescriptor<CHILD,?,CHILDBUILDER, ?>> childrenDescriptorsList = childDaoDescriptor.childrenDescriptors();
 
         Supplier<CHILDBUILDER> supplier = childDaoDescriptor.supplier();
@@ -83,10 +84,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
     }
 
     public void saveChildren(Connection connection, Envelope<PARENT> envelope) {
-        saveChildren(connection, envelope, childDaoDescriptor.primaryKey());
-    }
-
-    public void saveChildren(Connection connection, Envelope<PARENT> envelope, PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey){
+        PrimaryKey<CHILD, CHILDBUILDER> childPrimaryKey = childDaoDescriptor.primaryKey();
 
         PARENT item = envelope.getItem();
 
@@ -101,7 +99,7 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
 
         Set<Long> existingIds = findExistingChildrenIds(connection, parentId);
 
-       for(CHILD child : children){
+        for(CHILD child : children){
             Long childId = childPrimaryKey.getKey(child);
             if( childId == null ) {
                 childId = DaoHelper.getNextSequenceValue(connection, childPrimaryKey.getSequenceName());

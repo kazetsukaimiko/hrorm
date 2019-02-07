@@ -19,9 +19,12 @@ import java.util.function.Supplier;
  *
  * @param <ENTITY> The class that the Dao will support.
  */
-public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+public class DaoBuilder<ENTITY> implements DaoDescriptor<ENTITY, ENTITY> {
+
+    private final IndirectDaoBuilder<ENTITY, ENTITY> internalDaoBuilder;
 
     private final Consumer<PrimaryKey<ENTITY,ENTITY>> primaryKeyConsumer;
+    private final String myPrefix;
 
     /**
      * Create a new DaoBuilder instance.
@@ -30,12 +33,11 @@ public class DaoBuilder<ENTITY> extends KeylessDaoBuilder<ENTITY> implements Dao
      * @param supplier A mechanism (generally a constructor) for creating a new instance.
      */
     public DaoBuilder(String tableName, Supplier<ENTITY> supplier){
-        this(IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier));
-    }
-
-    private DaoBuilder(IndirectDaoBuilder.BuilderHolder<ENTITY,ENTITY> builderHolder) {
-        super(builderHolder);
+        IndirectDaoBuilder.BuilderHolder<ENTITY,ENTITY> builderHolder =
+                IndirectDaoBuilder.forDirectDaoBuilder(tableName, supplier);
+        internalDaoBuilder = builderHolder.daoBuilder;
         primaryKeyConsumer = builderHolder.primaryKeyConsumer;
+        myPrefix = builderHolder.myPrefix;
     }
 
     @Override

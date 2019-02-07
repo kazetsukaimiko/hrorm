@@ -5,20 +5,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
- * The {@link Dao} implementation.
+ * The {@link KeylessDao} implementation.
  *
  * <p>
  *
  * There is no good reason to directly construct this class yourself.
- * Use a {@link DaoBuilder} or {@link IndirectDaoBuilder}.
+ * Use a {@link IndirectKeylessDaoBuilder}.
  *
  * @param <ENTITY> The type whose persistence is managed by this <code>Dao</code>.
  * @param <PARENT> The type of the parent (if any) of type <code>ENTITY</code>.
@@ -26,8 +25,6 @@ import java.util.stream.Collectors;
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
 public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements KeylessDao<ENTITY>, KeylessDaoDescriptor<ENTITY, BUILDER> {
-
-    private static final Logger logger = Logger.getLogger("org.hrorm");
 
     protected final Connection connection;
     protected final String tableName;
@@ -37,7 +34,7 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     protected final List<ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors;
     protected final KeylessSqlBuilder<ENTITY> keylessSqlBuilder;
     protected final SqlRunner<ENTITY, BUILDER> sqlRunner;
-    protected  final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
+    protected final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
     protected final Function<BUILDER, ENTITY> buildFunction;
 
     public KeylessDaoImpl(Connection connection,
@@ -87,16 +84,15 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     public Function<BUILDER, ENTITY> buildFunction() { return buildFunction; }
 
     @Override
-    public Optional<Long> atomicInsert(ENTITY item) {
+    public Long atomicInsert(ENTITY item) {
         Transactor transactor = new Transactor(connection);
         return transactor.runAndCommit(
                con -> { return insert(item); }
         );
     }
 
-
     @Override
-    public Optional<Long> insert(ENTITY item) {
+    public Long insert(ENTITY item) {
         String sql = keylessSqlBuilder.insert();
         Envelope<ENTITY> envelope = new Envelope(item);
         sqlRunner.insert(sql, envelope);
@@ -137,32 +133,26 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
 
     @Override
     public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
-        String sql = keylessSqlBuilder.selectByColumns(columnNames);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item);
+        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, new SelectColumnList(columnNames), columnMap(columnNames), childrenDescriptors, item);
         return mapBuilders(bs);
     }
 
-    // TODO
-//    @Override
-//    public List<ENTITY> deleteManyByColumns(ENTITY item, String... columnNames) {
-//        throw new UnsupportedOperationException();
-//    }
-//
-//    @Override
-//    public List<ENTITY> updateManyByColumns(ENTITY selectionItem, String[] selectionColumnNames, ENTITY updateItem, String[] updateColumnNames) {
-//        throw new UnsupportedOperationException();
-//    }
+    @Override
+    public List<ENTITY> selectManyByColumns(ENTITY template, Map<String, Operator> columnNamesMap) {
+        SelectColumnList selectColumnList = new SelectColumnList(columnNamesMap);
+        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
+        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, selectColumnList, columnMap(selectColumnList.columnNames()), childrenDescriptors, template);
+        return mapBuilders(bs);
+    }
 
     @Override
     public <T> T foldingSelect(ENTITY item, T identity, BiFunction<T,ENTITY,T> accumulator, String ... columnNames){
-        String sql = keylessSqlBuilder.selectByColumns(columnNames);
-        return sqlRunner.foldingSelect(sql, supplier, Arrays.asList(columnNames), columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
+        SelectColumnList selectColumnList = new SelectColumnList(columnNames);
+        String sql = keylessSqlBuilder.selectByColumns(selectColumnList);
+        return sqlRunner.foldingSelect(sql, supplier, selectColumnList, columnMap(columnNames), childrenDescriptors, item, buildFunction, identity, accumulator);
     }
-
-//    @Override
-//    public Queries queries() {
-//        return this.keylessSqlBuilder;
-//    }
 
     protected <A> A fromSingletonList(List<A> items) {
         if (items.isEmpty()) {
