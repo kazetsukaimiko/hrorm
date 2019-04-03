@@ -9,7 +9,7 @@ public class IntegerType extends ColumnType<Integer> {
     public static IntegerType BIGINT(String sqlTypeName) { return new IntegerType(Types.BIGINT, sqlTypeName); }
     public static IntegerType SMALLINT(String sqlTypeName) { return new IntegerType(Types.SMALLINT, sqlTypeName); }
 
-    protected IntegerType(int sqlType, String sqlTypeName) {
+    private IntegerType(int sqlType, String sqlTypeName) {
         super(Integer.class, sqlType, sqlTypeName);
     }
 

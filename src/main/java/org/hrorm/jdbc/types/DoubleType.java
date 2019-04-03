@@ -5,16 +5,13 @@ import java.util.Set;
 
 public class DoubleType extends ColumnType<Double> {
 
-    public static final DoubleType DECIMAL = new DoubleType(Types.DECIMAL);
-    public static final DoubleType DOUBLE = new DoubleType(Types.DOUBLE);
-    public static final DoubleType FLOAT = new DoubleType(Types.FLOAT);
-    public static final DoubleType REAL = new DoubleType(Types.REAL);
-    public static final DoubleType NUMERIC = new DoubleType(Types.NUMERIC);
+    public static DoubleType DECIMAL(String sqlTypeName) { return new DoubleType(Types.DECIMAL, sqlTypeName); }
+    public static DoubleType DOUBLE(String sqlTypeName) { return new DoubleType(Types.DOUBLE, sqlTypeName); }
+    public static DoubleType FLOAT(String sqlTypeName) { return new DoubleType(Types.FLOAT, sqlTypeName); }
+    public static DoubleType REAL(String sqlTypeName) { return new DoubleType(Types.REAL, sqlTypeName); }
+    public static DoubleType NUMERIC(String sqlTypeName) { return new DoubleType(Types.NUMERIC, sqlTypeName); }
 
-    protected DoubleType(int sqlType) {
-        this(sqlType, null);    }
-
-    protected DoubleType(int sqlType, String sqlTypeName) {
+    private DoubleType(int sqlType, String sqlTypeName) {
         super(Double.class, sqlType, sqlTypeName);
     }
 

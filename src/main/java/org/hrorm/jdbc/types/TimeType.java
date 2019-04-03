@@ -6,12 +6,9 @@ import java.util.Collections;
 import java.util.Set;
 
 public class TimeType extends ColumnType<Time> {
-    public static final TimeType TIME = new TimeType(Types.TIME);
+    public static TimeType TIME(String sqlTypeName) { return new TimeType(Types.TIME, sqlTypeName); }
 
-    protected TimeType(int sqlType) {
-        this(sqlType, null);    }
-
-    protected TimeType(int sqlType, String sqlTypeName) {
+    private TimeType(int sqlType, String sqlTypeName) {
         super(Time.class, sqlType, sqlTypeName);
     }
 

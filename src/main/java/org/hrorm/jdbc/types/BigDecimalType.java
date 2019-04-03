@@ -6,16 +6,13 @@ import java.util.Set;
 
 public class BigDecimalType extends ColumnType<BigDecimal> {
 
-    public static final BigDecimalType DECIMAL = new BigDecimalType(Types.DECIMAL);
-    public static final BigDecimalType DOUBLE = new BigDecimalType(Types.DOUBLE);
-    public static final BigDecimalType FLOAT = new BigDecimalType(Types.FLOAT);
-    public static final BigDecimalType REAL = new BigDecimalType(Types.REAL);
-    public static final BigDecimalType NUMERIC = new BigDecimalType(Types.NUMERIC);
+    public static BigDecimalType DECIMAL(String sqlTypeName) { return new BigDecimalType(Types.DECIMAL, sqlTypeName); }
+    public static BigDecimalType DOUBLE(String sqlTypeName) { return new BigDecimalType(Types.DOUBLE, sqlTypeName); }
+    public static BigDecimalType FLOAT(String sqlTypeName) { return new BigDecimalType(Types.FLOAT, sqlTypeName); }
+    public static BigDecimalType REAL(String sqlTypeName) { return new BigDecimalType(Types.REAL, sqlTypeName); }
+    public static BigDecimalType NUMERIC(String sqlTypeName) { return new BigDecimalType(Types.NUMERIC, sqlTypeName); }
 
-    public BigDecimalType(int sqlType) {
-        this(sqlType, null);    }
-
-    public BigDecimalType(int sqlType, String sqlTypeName) {
+    private BigDecimalType(int sqlType, String sqlTypeName) {
         super(BigDecimal.class, sqlType, sqlTypeName);
     }
 
