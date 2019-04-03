@@ -1,6 +1,10 @@
 package org.hrorm.jdbc.types;
 
 import java.sql.Types;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class BooleanType extends ColumnType<Boolean> {
 
@@ -16,5 +20,10 @@ public class BooleanType extends ColumnType<Boolean> {
 
     public BooleanType(int sqlType, String sqlTypeName) {
         super(Boolean.class, sqlType, sqlTypeName);
+    }
+
+    @Override
+    public Set<Integer> supportedTypes() {
+        return ColumnTypes.BooleanTypes;
     }
 }

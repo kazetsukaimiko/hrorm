@@ -2,6 +2,7 @@ package org.hrorm.jdbc.types;
 
 import java.math.BigDecimal;
 import java.sql.Types;
+import java.util.Set;
 
 public class BigDecimalType extends ColumnType<BigDecimal> {
 
@@ -16,5 +17,10 @@ public class BigDecimalType extends ColumnType<BigDecimal> {
 
     public BigDecimalType(int sqlType, String sqlTypeName) {
         super(BigDecimal.class, sqlType, sqlTypeName);
+    }
+
+    @Override
+    public Set<Integer> supportedTypes() {
+        return ColumnTypes.DecimalTypes;
     }
 }

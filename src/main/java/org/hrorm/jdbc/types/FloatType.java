@@ -1,6 +1,7 @@
 package org.hrorm.jdbc.types;
 
 import java.sql.Types;
+import java.util.Set;
 
 public class FloatType extends ColumnType<Float> {
 
@@ -15,5 +16,11 @@ public class FloatType extends ColumnType<Float> {
 
     protected FloatType(int sqlType, String sqlTypeName) {
         super(Float.class, sqlType, sqlTypeName);
+    }
+
+
+    @Override
+    public Set<Integer> supportedTypes() {
+        return ColumnTypes.DecimalTypes;
     }
 }

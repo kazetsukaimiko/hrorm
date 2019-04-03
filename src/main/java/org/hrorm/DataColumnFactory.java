@@ -281,7 +281,7 @@ public class DataColumnFactory {
 
             @Override
             public Set<Integer> supportedTypes() {
-                return Collections.singleton(genericColumn.sqlType());
+                return genericColumn.getSupportedTypes();
             }
 
         };

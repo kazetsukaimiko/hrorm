@@ -8,6 +8,7 @@ import org.hrorm.jdbc.types.ColumnType;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
 /**
  * A column that represents a particular Java type.
@@ -63,6 +64,10 @@ public class GenericColumn<TYPE> {
 
     public String getSqlTypeName(){
         return jdbcInteraction.getColumnType().getSqlTypeName();
+    }
+
+    public Set<Integer> getSupportedTypes() {
+        return jdbcInteraction.getColumnType().supportedTypes();
     }
 
 }

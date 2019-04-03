@@ -1,6 +1,8 @@
 package org.hrorm.jdbc.types;
 
-public class ColumnType<TYPE> {
+import java.util.Set;
+
+public abstract class ColumnType<TYPE> {
     private final Class<TYPE> jdbcType;
     private final int sqlType;
     private final String sqlTypeName;
@@ -24,6 +26,8 @@ public class ColumnType<TYPE> {
             this.sqlTypeName = sqlTypeName;
         }
     }
+
+    public abstract Set<Integer> supportedTypes();
 
     public Class<TYPE> getJdbcType() {
         return jdbcType;

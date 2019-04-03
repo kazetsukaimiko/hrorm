@@ -1,6 +1,7 @@
 package org.hrorm.jdbc.types;
 
 import java.sql.Types;
+import java.util.Set;
 
 public class DoubleType extends ColumnType<Double> {
 
@@ -15,5 +16,10 @@ public class DoubleType extends ColumnType<Double> {
 
     protected DoubleType(int sqlType, String sqlTypeName) {
         super(Double.class, sqlType, sqlTypeName);
+    }
+
+    @Override
+    public Set<Integer> supportedTypes() {
+        return ColumnTypes.DecimalTypes;
     }
 }

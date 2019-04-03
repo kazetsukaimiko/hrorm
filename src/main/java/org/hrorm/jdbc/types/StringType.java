@@ -1,6 +1,10 @@
 package org.hrorm.jdbc.types;
 
 import java.sql.Types;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StringType extends ColumnType<String> {
     public static StringType CHAR(String sqlTypeName) { return new StringType(Types.CHAR, sqlTypeName); }
@@ -15,5 +19,10 @@ public class StringType extends ColumnType<String> {
 
     private StringType(int sqlType, String sqlTypeName) {
         super(String.class, sqlType, sqlTypeName);
+    }
+
+    @Override
+    public Set<Integer> supportedTypes() {
+        return ColumnTypes.StringTypes;
     }
 }
