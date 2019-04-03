@@ -3,6 +3,7 @@ package org.hrorm;
 import lombok.Data;
 import org.hrorm.database.Helper;
 import org.hrorm.database.HelperFactory;
+import org.hrorm.jdbc.interaction.JDBCInteraction;
 import org.hrorm.util.TestLogConfig;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -41,9 +42,8 @@ public class GenericColumnTest {
 
     private static IndirectDaoBuilder<Foo,Foo> daoBuilder(){
         GenericColumn<Integer> integerColumn = new GenericColumn<>(
-                PreparedStatement::setInt,
-                ResultSet::getInt,
-                Types.INTEGER,
+                JDBCInteraction.INTEGER,
+                Types.INTEGER, // TODO : ColumnType
                 "integer"
         );
 

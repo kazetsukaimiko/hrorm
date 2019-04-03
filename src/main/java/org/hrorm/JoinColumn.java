@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import org.hrorm.jdbc.types.ColumnTypes;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;

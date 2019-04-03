@@ -1,4 +1,4 @@
-package org.hrorm;
+package org.hrorm.jdbc.interaction;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -121,7 +121,7 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok-maven</artifactId>
       <version>1.18.0.0</version>
-      <type>pom</type>
+      <sqlType>pom</sqlType>
       <scope>test</scope>
     </dependency>
     <dependency>

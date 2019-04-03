@@ -1,5 +1,7 @@
 package org.hrorm;
 
+import org.hrorm.jdbc.interaction.PreparedStatementSetter;
+
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

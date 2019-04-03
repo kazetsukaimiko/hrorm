@@ -74,7 +74,7 @@
 
             <p><code>Dao</code> building is accomplished with the aptly named <code>DaoBuilder</code> class.
                 <code>DaoBuilder</code> objects are part of the one-time (static, singleton) initiation of
-                your application. There is little point in having more than one builder of any entity type.
+                your application. There is little point in having more than one builder of any entity sqlType.
                 Of course, some care must be taken: by their nature, <code>DaoBuilder</code> objects are
                 mutable, so if you directly expose them to the rest of your application during start up,
                 it's possible that you can do something stupid.
@@ -146,8 +146,8 @@
                     Hrorm has built in support for a limited number of (Java) datatypes:
                     <code>Long</code>, <code>BigDecimal</code>, <code>String</code>, <code>Boolean</code>,
                     and <code>Instant</code>. However, by using a <a href="#generic_columns"><code>GenericColumn</code></a>
-                    you can easily support any type you want. Additionally, hrorm supports a mechanism
-                    for persisting values that can be converted from one type to another and back, intended
+                    you can easily support any sqlType you want. Additionally, hrorm supports a mechanism
+                    for persisting values that can be converted from one sqlType to another and back, intended
                     for enumerated or other non-primitive types.
                 </p>
 
@@ -198,7 +198,7 @@
                 <p>These are relations between two objects where one object refers in a dependent, but not
                     controlling, way.</p>
 
-                <p>In the  <a href="/#quick_start">recipe example</a>, the relationship between an Author and a Recipe is of this type.
+                <p>In the  <a href="/#quick_start">recipe example</a>, the relationship between an Author and a Recipe is of this sqlType.
                     A Recipe requires an Author, but neither owns the other.
                 </p>
 
@@ -208,7 +208,7 @@
 
                 <p>Note well: Hrorm will do nothing to prevent a dependent sibling from being deleted. The application
                     code, or database schema constraints, (or both!) must be in place to prevent orphaned records of
-                    that type.</p>
+                    that sqlType.</p>
 
                 <a id="association_relations_concept"></a>
                 <h4>Association Relations</h4>
@@ -295,7 +295,7 @@
                     <li>Height in meters (a decimal)</li>
                     <li>Birthday (a date)</li>
                     <li>High school graduate? (a boolean)</li>
-                    <li>Hair color (an enumerated type)</li>
+                    <li>Hair color (an enumerated sqlType)</li>
                 </ul>
 
                 <p>To model the person entity, we write a Java Person object.</p>
@@ -319,7 +319,7 @@
                         used
                         for persistence.
                     </li>
-                    <li>Assume that there is an enumerated type for hair color: <code>HairColor.Black</code>, <code>HairColor.Brown</code>,
+                    <li>Assume that there is an enumerated sqlType for hair color: <code>HairColor.Black</code>, <code>HairColor.Brown</code>,
                         etc.
                     </li>
                 </ul>
@@ -345,14 +345,14 @@
                 <p>To translate between the database representation and the Java representation, we plan to use
                     a <code>Dao</code> object. We could build that directly, but hrorm provides a DaoBuilder
                     class that makes things much easier. In hrorm, both <code>Dao</code> objects and their builders
-                    are parameterized on the type of thing they persist. We start off by simply calling the
+                    are parameterized on the sqlType of thing they persist. We start off by simply calling the
                     <code>DaoBuilder</code> constructor.</p>
 
                 <pre>
     DaoBuilder&lt;Person&gt; daoBuilder = new DaoBuilder&lt;&gt;("PERSON_TABLE", Person::new);</pre>
 
                 <p>The constructor takes two arguments: the name of the table and a no-argument method for
-                    creating a new instance of the parameterized type.</p>
+                    creating a new instance of the parameterized sqlType.</p>
 
                 <p>Next, we need to define the primary key for this entity.</p>
 
@@ -364,7 +364,7 @@
                 <ol>
                     <li>The name of the primary key column in the table ("ID")</li>
                     <li>The name of the sequence that populates the primary keys ("PERSON_SEQUENCE")</li>
-                    <li>A function that retrieves the primary key (of type <code>Long</code>) from the
+                    <li>A function that retrieves the primary key (of sqlType <code>Long</code>) from the
                         <code>Person</code> object.
                     </li>
                     <li>A function that can set the primary key onto the object.</li>
@@ -388,24 +388,24 @@
     daoBuilder.withIntegerColumn("WEIGHT", Person::getWeight, Person::setWeight);</pre>
 
                 <p>For fractional, decimal, or floating point values, hrorm supports the
-                    <code>java.math.BigDecimal</code> type.</p>
+                    <code>java.math.BigDecimal</code> sqlType.</p>
 
                 <pre>
     daoBuilder.withBigDecimalColumn("HEIGHT", Person::getHeight, Person::setHeight);</pre>
 
-                <p>For dates and times, hrorm supports the <code>java.time.Instant</code> type.</p>
+                <p>For dates and times, hrorm supports the <code>java.time.Instant</code> sqlType.</p>
 
                 <pre>
     daoBuilder.withInstantColumn("BIRTHDAY", Person::getBirthday, Person::setBirthday);</pre>
 
-                <p>And similarly for boolean values. Not all databases support a Boolean type. For
-                    those, you should use the Converter apparatus, as with an enumerated type.
+                <p>And similarly for boolean values. Not all databases support a Boolean sqlType. For
+                    those, you should use the Converter apparatus, as with an enumerated sqlType.
                 </p>
 
                 <pre>
     daoBuilder.withBooleanColumn("IS_HIGH_SCHOOL_GRADUATE", Person::isHighSchoolGraduate, Person::setHighSchoolGraduate);</pre>
 
-                <p>For the enumerated <code>HairColor</code> type, hrorm needs a bit more help, via an implementation
+                <p>For the enumerated <code>HairColor</code> sqlType, hrorm needs a bit more help, via an implementation
                     of its <code>Converter</code> interface. We need a simple class that looks like this:</p>
 
                 <pre>
@@ -467,15 +467,15 @@
                 </p>
 
                 <ul>
-                    <li>How to populate a <code>java.sql.PreparedStatemnt</code> with the Java type
+                    <li>How to populate a <code>java.sql.PreparedStatemnt</code> with the Java sqlType
                         this column supports.
                     </li>
-                    <li>How to read the type from a <code>java.sql.ResultSet</code>.</li>
-                    <li>What SQL type this is, as defined in the <code>java.sql.Types</code> class.
+                    <li>How to read the sqlType from a <code>java.sql.ResultSet</code>.</li>
+                    <li>What SQL sqlType this is, as defined in the <code>java.sql.Types</code> class.
                     (This is important for validation and for setting null values correctly.)</li>
                 </ul>
 
-                <p>To define a column that supports the <code>int</code> primitive or <code>Integer</code> type
+                <p>To define a column that supports the <code>int</code> primitive or <code>Integer</code> sqlType
                     (as opposed to <code>long</code>) you would write code like this:</p>
 
 <pre>
@@ -494,7 +494,7 @@
 
                 <p>Additionally, you can combine a <code>GenericColumn</code> with a
                     <a href="/javadocs/latest/org/hrorm/Converter.html"><code>Converter</code></a>.
-                    This allows you to persist as one type (one that makes sense to the database) but
+                    This allows you to persist as one sqlType (one that makes sense to the database) but
                     populate your models with another. This allows maximum flexibility, and the possibility
                     of using the same <code>GenericColumn</code> in the database to represent a number
                     of different types in your object model.</p>
@@ -585,8 +585,8 @@
                     a whole series of <CODE>INSERT</CODE>, <code>UPDATE</code>, and <code>DELETE</code>
                     queries being run.</p>
 
-                <p>Hrorm always understands child objects to be members of type <code>List</code>.
-                    No other collection type is supported.</p>
+                <p>Hrorm always understands child objects to be members of sqlType <code>List</code>.
+                    No other collection sqlType is supported.</p>
 
                 <h5>Back-References</h5>
 
@@ -795,7 +795,7 @@
     Dao&lt;ImmutableThing&gt; immutableThingDao = immutableThingDaoBuilder.buildDao(connection);</pre>
 
                 <p>It works very similarly to the regular <code>DaoBuilder</code>, but some extra details
-                    are required. There are now two type parameters: one for the entity itself and
+                    are required. There are now two sqlType parameters: one for the entity itself and
                     one for its builder object. On construction, instead of simply showing how to create
                     a new entity instance, two parameters show how to make a new builder instance and
                     how to make a new entity instance from the builder. Finally, all the setters are
@@ -874,7 +874,7 @@
                 <p>The validation provided is not a substitute for testing that code works as intended. It simply
                     checks that the names of the tables, columns, and sequences provided in the <code>Dao</code>
                     descriptions exist as stated. Columns are checked to make sure they are
-                    of a correct type. As such, it can quickly find typos or other simple errors and
+                    of a correct sqlType. As such, it can quickly find typos or other simple errors and
                     report them. This can be particularly useful in times of database refactoring.</p>
 
                 <p>To check that a particular <code>Dao</code> is correct, simply pass it, or its builder,
@@ -1150,7 +1150,7 @@
 
                 <h5>Selects</h5>
 
-                <p>Associations work in both directions, but we have to take care with which type was
+                <p>Associations work in both directions, but we have to take care with which sqlType was
                 on the left and which was on the right. (This has nothing to do with left or right joins,
                 just the names for the two types being associated.)</p>
 
@@ -1256,7 +1256,7 @@
     List&lt;Entity&gt; entities = dao.select(new Where());</pre>
 
                 <p>These two examples are a bit silly, and clearly the alternatives are better. But, folding
-                allows you to define an arbitrary accumulation function on whatever type you wish,
+                allows you to define an arbitrary accumulation function on whatever sqlType you wish,
                     not just adding sums or appending to lists.</p>
 
             </div>
@@ -1302,12 +1302,12 @@
                 </p>
 
                 <p>
-                    The JDBC supports the timestamp concept above through the type <code>java.sql.Timestamp</code>,
+                    The JDBC supports the timestamp concept above through the sqlType <code>java.sql.Timestamp</code>,
                     which is implemented as an extension of the widely hated (and mostly deprecated)
                     <code>java.util.Date</code>. One reason (among many) that people dislike the <code>java.util.Date</code>
-                    type is because it isn't even a date. It's a date and time. Except it's not that, it's a timestamp,
+                    sqlType is because it isn't even a date. It's a date and time. Except it's not that, it's a timestamp,
                     an offset from the epoch as above. So, already we are in trouble, since the primary means of
-                    persisting date and time information of all sorts is through a mutable type of
+                    persisting date and time information of all sorts is through a mutable sqlType of
                     deprecated methods of confusing meaning difficult to translate to the very good options
                     available in the <code>java.time</code> package.
                 </p>
@@ -1336,7 +1336,7 @@
                     ways to access information like day of the week or hour of the day that are not directly
                     available from an <code>Instant</code>. It's probably the go to choice when modeling domain classes
                     that involve date time values. With the caveat that if all you want is a date (or a time)
-                    you can use a smaller more focused type.
+                    you can use a smaller more focused sqlType.
                 </p>
 
                 <p>
@@ -1385,8 +1385,8 @@
 
                 <p>
                     The <code>Instant</code> conversions have no such problem, but of course,
-                    you have to be careful when your model converts from a date type to an instant
-                    type, since pitfalls exist. (Again, the following tests all pass on my computer,
+                    you have to be careful when your model converts from a date sqlType to an instant
+                    sqlType, since pitfalls exist. (Again, the following tests all pass on my computer,
                     but perhaps not on yours!)
                 </p>
 
@@ -1492,7 +1492,7 @@
                         <code>Statement</code>, and <code>ResultSet</code> objects, defeating the purpose of
                         exception handling being centralized and removed from normal application flow.
                     </li>
-                    <li>Convert <code>SQLException</code> to some other type, descended from
+                    <li>Convert <code>SQLException</code> to some other sqlType, descended from
                         <code>RuntimeException</code>.
                     </li>
                 </ol>

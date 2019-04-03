@@ -1,5 +1,10 @@
 package org.hrorm;
 
+import org.hrorm.jdbc.interaction.JDBCInteraction;
+import org.hrorm.jdbc.interaction.PreparedStatementSetter;
+import org.hrorm.jdbc.interaction.ResultSetReader;
+import org.hrorm.jdbc.types.ColumnType;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,44 +33,40 @@ import java.sql.SQLException;
  * @param <TYPE> The Java type represented by the column.
  */
 public class GenericColumn<TYPE> {
-
     private final Integer sqlType;
     private final String sqlTypeName;
-    private final PreparedStatementSetter<TYPE> preparedStatementSetter;
-    private final ResultSetReader<TYPE> resultReader;
+
+    // private final ColumnType<TYPE> columnType; // TODO, as to replace the above.
+    private final JDBCInteraction<TYPE> jdbcInteraction;
 
     /**
      * Create a generic column instance to support the <code>TYPE</code>.
      *
-     * @param preparedStatementSetter The method used to set the type onto a prepared statement.
-     * @param resultReader The method used to read the value out of a result set.
+     * @param jdbcInteraction The jdbc interaction behavior.
      * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
      */
-    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType){
+    public GenericColumn(JDBCInteraction<TYPE> jdbcInteraction, int sqlType){
         this.sqlType = sqlType;
-        this.preparedStatementSetter = preparedStatementSetter;
-        this.resultReader = resultReader;
+        this.jdbcInteraction = jdbcInteraction;
         this.sqlTypeName = "UNSET";
     }
 
     /**
      * Create a generic column instance to support the <code>TYPE</code>.
      *
-     * @param preparedStatementSetter The method used to set the type onto a prepared statement.
-     * @param resultReader The method used to read the value out of a result set.
+     * @param jdbcInteraction The jdbc interaction behavior.
      * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
      * @param sqlTypeName The name of the type in the SQL schema. This optional value can be set
      *                    if you wish to generate your schema using a {@link Schema} object.
      */
-    public GenericColumn(PreparedStatementSetter<TYPE> preparedStatementSetter, ResultSetReader<TYPE> resultReader, int sqlType, String sqlTypeName){
+    public GenericColumn(JDBCInteraction<TYPE> jdbcInteraction, int sqlType, String sqlTypeName){
         this.sqlType = sqlType;
-        this.preparedStatementSetter = preparedStatementSetter;
-        this.resultReader = resultReader;
+        this.jdbcInteraction = jdbcInteraction;
         this.sqlTypeName = sqlTypeName;
     }
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-        TYPE value = resultReader.read(resultSet, columnName);
+        TYPE value = jdbcInteraction.read(resultSet, columnName);
         if( resultSet.wasNull() ){
             return null;
         }
@@ -73,7 +74,7 @@ public class GenericColumn<TYPE> {
     }
 
     public void setPreparedStatement(PreparedStatement preparedStatement, int index, TYPE value) throws SQLException {
-        preparedStatementSetter.apply(preparedStatement, index, value);
+        jdbcInteraction.apply(preparedStatement, index, value);
     }
 
     public int sqlType() {

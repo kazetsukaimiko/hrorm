@@ -1,4 +1,4 @@
-package org.hrorm;
+package org.hrorm.jdbc.types;
 
 import java.sql.Types;
 import java.util.Arrays;

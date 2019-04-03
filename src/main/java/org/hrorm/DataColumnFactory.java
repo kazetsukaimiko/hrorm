@@ -1,5 +1,8 @@
 package org.hrorm;
 
+import org.hrorm.jdbc.interaction.JDBCInteraction;
+import org.hrorm.jdbc.types.ColumnTypes;
+
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -127,32 +130,9 @@ public class DataColumnFactory {
 
     public static <ENTITY, BUILDER> AbstractColumn<String, ENTITY, BUILDER> stringColumn(
             String name, String prefix, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter, boolean nullable) {
-        return new AbstractColumn<String, ENTITY, BUILDER>(name, prefix, getter, setter, nullable, "text") {
-            @Override
-            public String fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
-                return resultSet.getString(columnName);
-            }
 
-            @Override
-            public void setPreparedStatement(PreparedStatement preparedStatement, int index, String value) throws SQLException {
-                preparedStatement.setString(index, value);
-            }
-
-            @Override
-            public Column<ENTITY, BUILDER> withPrefix(String newPrefix, Prefixer prefixer) {
-                return stringColumn(getName(), newPrefix, getter, setter, nullable);
-            }
-
-            @Override
-            int sqlType() {
-                return Types.VARCHAR;
-            }
-
-            @Override
-            public Set<Integer> supportedTypes() {
-                return ColumnTypes.StringTypes;
-            }
-        };
+        GenericColumn<String> column = new GenericColumn<String>(JDBCInteraction.STRING, Types.VARCHAR, "text");
+        return genericColumn(name, prefix, getter, setter, column, nullable);
     }
 
     public static <ENTITY, BUILDER> AbstractColumn<Instant, ENTITY, BUILDER> instantColumn(

@@ -1,9 +1,9 @@
-package org.hrorm;
+package org.hrorm.jdbc.interaction;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 @FunctionalInterface
-interface PreparedStatementSetter<VALUE> {
+public interface PreparedStatementSetter<VALUE> {
     void apply(PreparedStatement preparedStatement, int index, VALUE value) throws SQLException;
 }

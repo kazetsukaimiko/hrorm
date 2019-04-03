@@ -10,8 +10,8 @@
 <body>
 
 <p>
-    In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-type-checke">earlier article</a>
-    I introduced <a href="https://hrorm.org">Hrorm</a>, a simple, declarative, type-checked library for building DAOs.
+    In an <a href="https://dzone.com/articles/introducing-hrorm-a-simple-declarative-sqlType-checke">earlier article</a>
+    I introduced <a href="https://hrorm.org">Hrorm</a>, a simple, declarative, sqlType-checked library for building DAOs.
     Hrorm is an ORM tool condensed
     down to its essence: making SQL queries against an RDBMS and translating their results into objects. The first article
     was about why a new ORM tool was worthwhile, even when we already have many options. If that was the introduction
@@ -81,7 +81,7 @@
 </pre>
 
 <p>
-    As is often the case with examples of this type, it's a bit silly and artificial, but it will
+    As is often the case with examples of this sqlType, it's a bit silly and artificial, but it will
     highlight a number of the basic features of Hrorm.
 </p>
 
@@ -96,9 +96,9 @@
 <p>
     Most of the mapping we will need will be straight-forward, but there is one detail that
     will require some preliminaries. Because the Java object model contains a custom enumerated
-    type and the database contains a string, we need to implement a simple interface,
+    sqlType and the database contains a string, we need to implement a simple interface,
     <code>org.hrorm.Converter&lt;CLASS, CODE&gt;</code>, that will handle the
-    translation to and from a <code>String</code> and the enumerated type. The
+    translation to and from a <code>String</code> and the enumerated sqlType. The
     implementation is trivial and shown below.
 </p>
 
