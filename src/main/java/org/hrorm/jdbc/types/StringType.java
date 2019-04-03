@@ -3,16 +3,17 @@ package org.hrorm.jdbc.types;
 import java.sql.Types;
 
 public class StringType extends ColumnType<String> {
-    static StringType CHAR = new StringType(Types.CHAR);
-    static StringType NVARCHAR = new StringType(Types.NVARCHAR);
-    static StringType LONGNVARCHAR = new StringType(Types.LONGNVARCHAR);
-    static StringType LONGVARCHAR = new StringType(Types.LONGVARCHAR);
-    static StringType VARCHAR = new StringType(Types.VARCHAR);
-    static StringType CLOB = new StringType(Types.CLOB);
-    static StringType NCLOB = new StringType(Types.NCLOB);
-    static StringType BLOB = new StringType(Types.BLOB);
+    public static StringType CHAR(String sqlTypeName) { return new StringType(Types.CHAR, sqlTypeName); }
+    public static StringType NVARCHAR(String sqlTypeName) { return new StringType(Types.NVARCHAR, sqlTypeName); }
+    public static StringType LONGNVARCHAR(String sqlTypeName) { return new StringType(Types.LONGNVARCHAR, sqlTypeName); }
+    public static StringType LONGVARCHAR(String sqlTypeName) { return new StringType(Types.LONGVARCHAR, sqlTypeName); }
 
-    protected StringType(int sqlType) {
-        super(String.class, sqlType);
+    public static StringType VARCHAR(String sqlTypeName) { return new StringType(Types.VARCHAR, sqlTypeName); }
+    public static StringType CLOB(String sqlTypeName) { return new StringType(Types.CLOB, sqlTypeName); }
+    public static StringType NCLOB(String sqlTypeName) { return new StringType(Types.NCLOB, sqlTypeName); }
+    public static StringType BLOB(String sqlTypeName) { return new StringType(Types.BLOB, sqlTypeName); }
+
+    private StringType(int sqlType, String sqlTypeName) {
+        super(String.class, sqlType, sqlTypeName);
     }
 }

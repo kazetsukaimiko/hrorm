@@ -17,6 +17,23 @@ public class ColumnType<TYPE> {
     protected ColumnType(Class<TYPE> jdbcType, int sqlType, String sqlTypeName) {
         this.jdbcType = jdbcType;
         this.sqlType = sqlType;
-        this.sqlTypeName = sqlTypeName;
+
+        if (sqlTypeName == null) {
+            this.sqlTypeName = "UNSET";
+        } else {
+            this.sqlTypeName = sqlTypeName;
+        }
+    }
+
+    public Class<TYPE> getJdbcType() {
+        return jdbcType;
+    }
+
+    public int getSqlType() {
+        return sqlType;
+    }
+
+    public String getSqlTypeName() {
+        return sqlTypeName;
     }
 }

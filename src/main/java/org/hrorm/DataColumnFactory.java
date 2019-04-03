@@ -2,6 +2,7 @@ package org.hrorm;
 
 import org.hrorm.jdbc.interaction.JDBCInteraction;
 import org.hrorm.jdbc.types.ColumnTypes;
+import org.hrorm.jdbc.types.StringType;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
@@ -14,6 +15,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import static org.hrorm.jdbc.types.StringType.VARCHAR;
 
 /**
  * Mechanisms for creating columns that can handle persistence of various Java types.
@@ -131,7 +134,7 @@ public class DataColumnFactory {
     public static <ENTITY, BUILDER> AbstractColumn<String, ENTITY, BUILDER> stringColumn(
             String name, String prefix, Function<ENTITY, String> getter, BiConsumer<BUILDER, String> setter, boolean nullable) {
 
-        GenericColumn<String> column = new GenericColumn<String>(JDBCInteraction.STRING, Types.VARCHAR, "text");
+        GenericColumn<String> column = new GenericColumn<>(JDBCInteraction.jdbcString(StringType.VARCHAR("text")));
         return genericColumn(name, prefix, getter, setter, column, nullable);
     }
 

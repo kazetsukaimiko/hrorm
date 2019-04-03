@@ -33,36 +33,16 @@ import java.sql.SQLException;
  * @param <TYPE> The Java type represented by the column.
  */
 public class GenericColumn<TYPE> {
-    private final Integer sqlType;
-    private final String sqlTypeName;
-
-    // private final ColumnType<TYPE> columnType; // TODO, as to replace the above.
     private final JDBCInteraction<TYPE> jdbcInteraction;
 
-    /**
-     * Create a generic column instance to support the <code>TYPE</code>.
-     *
-     * @param jdbcInteraction The jdbc interaction behavior.
-     * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
-     */
-    public GenericColumn(JDBCInteraction<TYPE> jdbcInteraction, int sqlType){
-        this.sqlType = sqlType;
-        this.jdbcInteraction = jdbcInteraction;
-        this.sqlTypeName = "UNSET";
-    }
 
     /**
      * Create a generic column instance to support the <code>TYPE</code>.
      *
      * @param jdbcInteraction The jdbc interaction behavior.
-     * @param sqlType The kind of this column type, as defined in <code>java.sql.Types</code>
-     * @param sqlTypeName The name of the type in the SQL schema. This optional value can be set
-     *                    if you wish to generate your schema using a {@link Schema} object.
      */
-    public GenericColumn(JDBCInteraction<TYPE> jdbcInteraction, int sqlType, String sqlTypeName){
-        this.sqlType = sqlType;
+    public GenericColumn(JDBCInteraction<TYPE> jdbcInteraction){
         this.jdbcInteraction = jdbcInteraction;
-        this.sqlTypeName = sqlTypeName;
     }
 
     public TYPE fromResultSet(ResultSet resultSet, String columnName) throws SQLException {
@@ -78,11 +58,11 @@ public class GenericColumn<TYPE> {
     }
 
     public int sqlType() {
-        return sqlType;
+        return jdbcInteraction.getColumnType().getSqlType();
     }
 
     public String getSqlTypeName(){
-        return sqlTypeName;
+        return jdbcInteraction.getColumnType().getSqlTypeName();
     }
 
 }
