@@ -1,7 +1,7 @@
 # <a href="http://hrorm.org">hrorm</a>
 
 
-Hrorm is a concise, declarative, opinionated, sqlType-checked library for the creation of Data Access
+Hrorm is a concise, declarative, opinionated, type-checked library for the creation of Data Access
 Objects (DAOs) that will not inflict your codebase with XMLosis or annotationitis.
 
 The <a href="http://hrorm.org">hrorm</a> website contains documentation for using
@@ -33,7 +33,7 @@ You can also run the tests against postgres, but it takes a bit of work.
 * Where object improvements:
     * Think about how isNull and isNotNull works, maybe something better can be found
     * Is creating strange statements like "a OR b AND c" desirable? Should it be prohibited somehow?
-    * Can we use the column types (or field types) to improve sqlType checking when building where clauses?
+    * Can we use the column types (or field types) to improve type checking when building where clauses?
     * What about in and not-in predicates? Can they be supported? How?
 * Hrorm does a lot of string building at query time. Should SQL strings be cached? 
   Similarly, DaoBuilder objects are always mutable. Perhaps they should lock at Dao creation time?
