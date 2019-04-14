@@ -247,12 +247,12 @@ public class Where implements StatementPopulator {
         tree = new WherePredicateTree(atom);
     }
 
-    public static Builder or() {
-        return new Builder(Builder.Mode.OR);
+    public static Reducer or() {
+        return Reducer.OR;
     }
 
-    public static Builder and() {
-        return new Builder(Builder.Mode.AND);
+    public static Reducer and() {
+        return Reducer.AND;
     }
 
     /**
@@ -483,23 +483,15 @@ public class Where implements StatementPopulator {
         }
     }
 
-    public static final class Builder implements BinaryOperator<Where> {
-        final Mode mode;
-
-        public Builder(Mode mode) {
-            this.mode = mode;
-        }
+    private enum Reducer implements BinaryOperator<Where> {
+        AND, OR;
 
         @Override
         public Where apply(Where where, Where where2) {
-            return (mode == Mode.AND) ?
+            return this == AND ?
                     where.and(where2)
                     :
                     where.or(where2);
-        }
-
-        private enum Mode {
-            AND, OR
         }
     }
 }
