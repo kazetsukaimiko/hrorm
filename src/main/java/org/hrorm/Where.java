@@ -4,7 +4,10 @@ import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.stream.Stream;
 
 /**
  * Representation of a SQL where clause: a possibly nested list of
@@ -244,6 +247,14 @@ public class Where implements StatementPopulator {
         tree = new WherePredicateTree(atom);
     }
 
+    public static Builder or() {
+        return new Builder(Builder.Mode.OR);
+    }
+
+    public static Builder and() {
+        return new Builder(Builder.Mode.AND);
+    }
+
     /**
      * Add a new predicate to the existing object by connecting the
      * existing predicates to the passed argument with a logical and
@@ -469,6 +480,26 @@ public class Where implements StatementPopulator {
         for(WherePredicate atom : this.tree.asList()){
             atom.setValue(idx, preparedStatement);
             idx++;
+        }
+    }
+
+    public static final class Builder implements BinaryOperator<Where> {
+        final Mode mode;
+
+        public Builder(Mode mode) {
+            this.mode = mode;
+        }
+
+        @Override
+        public Where apply(Where where, Where where2) {
+            return (mode == Mode.AND) ?
+                    where.and(where2)
+                    :
+                    where.or(where2);
+        }
+
+        private enum Mode {
+            AND, OR
         }
     }
 }

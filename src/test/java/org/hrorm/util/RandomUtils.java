@@ -11,8 +11,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -22,10 +24,23 @@ import java.util.stream.Stream;
  * Aims is to make it easier for the developer while making testing more robust.
  */
 public class RandomUtils {
+    private static final Logger LOGGER = Logger.getLogger(RandomUtils.class.getName());
     private static final Random RANDOM = new Random(System.currentTimeMillis());
 
     private RandomUtils() {
         // Don't construct me!
+    }
+
+    /**
+     * Calls Callable.call between min and max times
+     * @param min The minimum number of items
+     * @param max The maximum number of items
+     * @param callable Callable to execute. Should be able to call this indefinitely.
+     */
+    public static void callRandomNumberOfTimes(int min, int max, Callable callable) throws Exception {
+        for (int i=0; i<range(min, max); i++) {
+            callable.call();
+        }
     }
 
     /**

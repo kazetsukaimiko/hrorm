@@ -22,9 +22,13 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 import static org.hrorm.Operator.EQUALS;
 import static org.hrorm.Where.where;
@@ -940,6 +944,18 @@ public class ComparatorSelectTest {
                 wheres.add(new Where("integer_column", EQUALS, idx));
             }
             List<Columns> columns = dao.select(Where.or(wheres));
+            AssertHelp.containsAllItems(new Long[]{ 2L, 4L, 6L, 8L, 10L }, columns, c -> c.getIntegerThing());
+        });
+        helper.useConnection(connection -> {
+            Dao<Columns> dao = daoBuilder().buildDao(connection);
+
+            List<Columns> columns = LongStream.rangeClosed(2, 10)
+                    .filter(l -> l%2==0)
+                    .mapToObj(idx -> new Where("integer_column", EQUALS, idx))
+                    .reduce(Where.or())
+                    .map(dao::select)
+                    .orElse(Collections.emptyList());
+
             AssertHelp.containsAllItems(new Long[]{ 2L, 4L, 6L, 8L, 10L }, columns, c -> c.getIntegerThing());
         });
     }
