@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The {@link KeylessDao} implementation.
@@ -105,42 +106,40 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
         return bs.stream().map(buildFunction).collect(Collectors.toList());
     }
 
-
     @Override
-    public List<ENTITY> selectAll() {
+    public Stream<ENTITY> streamAll() {
         String sql = keylessSqlBuilder.select();
-        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
-        return mapBuilders(bs);
+        return sqlRunner.select(sql, supplier, childrenDescriptors)
+                .map(buildFunction);
     }
 
     @Override
-    public List<ENTITY> selectAll(Order order) {
+    public Stream<ENTITY> streamAll(Order order) {
         String sql = keylessSqlBuilder.select(order);
-        List<BUILDER> bs = sqlRunner.select(sql, supplier, childrenDescriptors);
-        return mapBuilders(bs);
+        return sqlRunner.select(sql, supplier, childrenDescriptors)
+                .map(buildFunction);
     }
 
 
     @Override
     public ENTITY selectByColumns(ENTITY item, String ... columnNames){
-        List<ENTITY> items = selectManyByColumns(item, columnNames);
-        return fromSingletonList(items);
+        return fromSingletonList(streamManyByColumns(item, columnNames).collect(Collectors.toList()));
     }
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY item, String ... columnNames) {
+    public Stream<ENTITY> streamManyByColumns(ENTITY item, String ... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(columnSelection);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors, item);
-        return mapBuilders(bs);
+        return sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors, item)
+                .map(buildFunction);
     }
 
     @Override
-    public List<ENTITY> selectManyByColumns(ENTITY template, Order order, String... columnNames) {
+    public Stream<ENTITY> streamManyByColumns(ENTITY template, Order order, String... columnNames) {
         ColumnSelection columnSelection = select(columnNames);
         String sql = keylessSqlBuilder.selectByColumns(columnSelection, order);
-        List<BUILDER> bs = sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors, template);
-        return mapBuilders(bs);
+        return sqlRunner.selectByColumns(sql, supplier, select(columnNames), childrenDescriptors, template)
+                .map(buildFunction);
     }
 
     @Override
@@ -167,17 +166,17 @@ public class KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements K
     }
 
     @Override
-    public List<ENTITY> select(Where where) {
+    public Stream<ENTITY> stream(Where where) {
         String sql = keylessSqlBuilder.select(where);
-        List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where);
-        return mapBuilders(bs);
+        return sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where)
+                .map(buildFunction);
     }
 
     @Override
-    public List<ENTITY> select(Where where, Order order) {
+    public Stream<ENTITY> stream(Where where, Order order) {
         String sql = keylessSqlBuilder.select(where, order);
-        List<BUILDER> bs = sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where);
-        return mapBuilders(bs);
+        return sqlRunner.selectWhere(sql, supplier, childrenDescriptors, where)
+                .map(buildFunction);
     }
 
     public static <A> A fromSingletonList(List<A> items) {

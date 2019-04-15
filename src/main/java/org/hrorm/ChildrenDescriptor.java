@@ -1,14 +1,11 @@
 package org.hrorm;
 
 import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * Complete definition of how a child entity is related to its parent entity.
@@ -64,7 +61,8 @@ public class ChildrenDescriptor<PARENT,CHILD,PARENTBUILDER,CHILDBUILDER> {
                 sql,
                 supplier,
                 childrenDescriptorsList,
-                where);
+                where)
+                .collect(Collectors.toList());
 
         List<CHILD> children = new ArrayList<>();
         for( CHILDBUILDER childrenBuilder : childrenBuilders ){

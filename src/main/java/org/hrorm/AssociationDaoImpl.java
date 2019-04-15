@@ -40,16 +40,14 @@ public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implemen
     public List<LEFT> selectLeftAssociates(RIGHT right) {
         Long rightId = rightPrimaryKey.getKey(right);
         Where where = new Where(rightColumnName, Operator.EQUALS, rightId);
-        List<Association<LEFT, RIGHT>> associations = internalDao.select(where);
-        return associations.stream().map(Association::getLeft).collect(Collectors.toList());
+        return internalDao.stream(where).map(Association::getLeft).collect(Collectors.toList());
     }
 
     @Override
     public List<RIGHT> selectRightAssociates(LEFT left) {
         Long leftId = leftPrimaryKey.getKey(left);
         Where where = new Where(leftColumnName, Operator.EQUALS, leftId);
-        List<Association<LEFT, RIGHT>> associations = internalDao.select(where);
-        return associations.stream().map(Association::getRight).collect(Collectors.toList());
+        return internalDao.stream(where).map(Association::getRight).collect(Collectors.toList());
     }
 
     @Override
@@ -66,7 +64,6 @@ public class AssociationDaoImpl<LEFT, LEFTBUILDER, RIGHT, RIGHTBUILDER> implemen
         Long leftId = leftPrimaryKey.getKey(left);
         Where where = new Where(leftColumnName, Operator.EQUALS, leftId)
                             .and(rightColumnName, Operator.EQUALS, rightId);
-        List<Association<LEFT, RIGHT>> associations = internalDao.select(where);
-        associations.forEach(internalDao::delete);
+        internalDao.stream(where).forEach(internalDao::delete);
     }
 }

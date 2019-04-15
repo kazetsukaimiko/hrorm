@@ -3,6 +3,7 @@ package org.hrorm;
 import java.sql.Connection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The {@link Dao} implementation.
@@ -87,20 +88,22 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         BUILDER builder = supplier().get();
         primaryKey.setKey(builder, id);
         ENTITY item = buildFunction().apply(builder);
+        // TODO : Stream.findFirst?
         List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier(),
                 select(primaryKeyName),
-                childrenDescriptors, item);
+                childrenDescriptors, item)
+                .collect(Collectors.toList());
         return KeylessDaoImpl.fromSingletonList(mapBuilders(items));
     }
 
     @Override
-    public List<ENTITY> selectMany(List<Long> ids) {
+    public Stream<ENTITY> streamMany(List<Long> ids) {
         String sql = sqlBuilder.select();
         List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
         String idsString = String.join(",", idStrings);
         sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        List<BUILDER> bs = sqlRunner.select(sql, supplier(), childrenDescriptors);
-        return mapBuilders(bs);
+        return sqlRunner.select(sql, supplier(), childrenDescriptors)
+                .map(buildFunction());
     }
 
     @Override

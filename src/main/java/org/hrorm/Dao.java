@@ -1,10 +1,12 @@
 package org.hrorm;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A <code>Dao</code> is an interface that allows basic CRUD operations to be performed.
- * Using a <code>Dao</code>, you can insert, select, update, and delete records.
+ * Using a <code>Dao</code>, you can insert, stream, update, and delete records.
  *
  * @param <ENTITY> The type of the data to be persisted.
  */
@@ -40,8 +42,12 @@ public interface Dao<ENTITY> extends KeylessDao<ENTITY> {
      * @param ids The primary keys of the records desired.
      * @return A list of populated instances of type ENTITY.
      */
-    List<ENTITY> selectMany(List<Long> ids);
+    Stream<ENTITY> streamMany(List<Long> ids);
 
+    @Deprecated
+    default List<ENTITY> selectMany(List<Long> ids) {
+        return streamMany(ids).collect(Collectors.toList());
+    }
 
     /**
      * Run an update statement to change the values in the database associated
