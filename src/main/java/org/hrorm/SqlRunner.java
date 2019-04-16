@@ -93,40 +93,6 @@ public class SqlRunner<ENTITY, BUILDER> {
         return new ResultSetQuery(connection, sql, statementPopulator).stream()
                 .map(resultSet -> hydrate(resultSet, supplier))
                 .map(builder -> populateChildren(builder, childrenDescriptors));
-/*
-
-        try {
-            PreparedStatement statement = connection.prepareStatement(sql);
-
-            // Closes all resources after the Stream closes.
-            UncheckedCloseable close = UncheckedCloseable.wrap(statement);
-
-            statementPopulator.populate(statement);
-
-            logger.info(sql);
-            ResultSet resultSet = statement.executeQuery();
-            close = close.nest(resultSet);
-            return StreamSupport.stream(new Spliterators.AbstractSpliterator<BUILDER>(Long.MAX_VALUE, Spliterator.ORDERED){
-                @Override
-                public boolean tryAdvance(Consumer<? super BUILDER> consumer) {
-                    try {
-                        if (resultSet.isClosed() || !resultSet.next()) return false;
-                        BUILDER bldr = populate(resultSet, supplier);
-                        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
-                            descriptor.populateChildren(connection, bldr);
-                        }
-                        if (bldr == null) return false;
-                        consumer.accept(bldr);
-                        return true;
-                    } catch (SQLException e) {
-                        throw new HrormException(e);
-                    }
-                }
-            }, false).onClose(close);
-        } catch (SQLException ex){
-            throw new HrormException(ex, sql);
-        }
-        */
     }
 
 

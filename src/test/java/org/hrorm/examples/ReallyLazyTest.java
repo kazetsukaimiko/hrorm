@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Test operations for tables without primary keys, and KeylessDao.
+ * Test operations for lazy behaviors, specifically detached Streams.
  */
 public class ReallyLazyTest {
 
@@ -66,7 +66,8 @@ public class ReallyLazyTest {
 
         Stream<Keyless> keylessStream = dao.streamAll();
 
-        // Attempting to consume is where we should throw.
+        // Attempting to consume is where we should throw, and specifically we should fail
+        // trying to create the prepared statement.
         keylessStream.forEach(System.out::println);
     }
 
