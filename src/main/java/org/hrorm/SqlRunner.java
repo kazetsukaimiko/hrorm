@@ -70,10 +70,31 @@ public class SqlRunner<ENTITY, BUILDER> {
                 .reduce(identity, accumulator, (a, b) -> a);
     }
 
+    private BUILDER hydrate(ResultSet resultSet, Supplier<BUILDER> supplier) {
+        try {
+            return populate(resultSet, supplier);
+        } catch (SQLException e) {
+            throw new HrormException(e);
+        }
+    }
+
+    private BUILDER populateChildren(BUILDER builder, List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors) {
+        for(ChildrenDescriptor<ENTITY,?, BUILDER,?> descriptor : childrenDescriptors){
+            descriptor.populateChildren(connection, builder);
+        }
+        return builder;
+    }
+
+
     public Stream<BUILDER> stream(String sql,
                                      StatementPopulator statementPopulator,
                                      Supplier<BUILDER> supplier,
                                      List<? extends ChildrenDescriptor<ENTITY,?, BUILDER,?>> childrenDescriptors){
+        return new ResultSetQuery(connection, sql, statementPopulator).stream()
+                .map(resultSet -> hydrate(resultSet, supplier))
+                .map(builder -> populateChildren(builder, childrenDescriptors));
+/*
+
         try {
             PreparedStatement statement = connection.prepareStatement(sql);
 
@@ -105,6 +126,7 @@ public class SqlRunner<ENTITY, BUILDER> {
         } catch (SQLException ex){
             throw new HrormException(ex, sql);
         }
+        */
     }
 
 

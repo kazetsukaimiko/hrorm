@@ -10,4 +10,7 @@ public interface UncheckedCloseable extends Runnable, AutoCloseable {
     default UncheckedCloseable nest(AutoCloseable autoCloseable) {
         return () -> { try(UncheckedCloseable uncheckedCloseable=this) { autoCloseable.close();}};
     }
+    static UncheckedCloseable noop() {
+        return () -> { };
+    }
 }
