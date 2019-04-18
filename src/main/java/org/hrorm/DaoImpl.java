@@ -18,9 +18,7 @@ import java.util.stream.Stream;
  * @param <BUILDER> The type of object that can build an <code>ENTITY</code> instance.
  * @param <PARENTBUILDER> The type of the object that can build a <code>PARENT</code> instance.
  */
-public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
-
-    private final SqlBuilder<ENTITY> sqlBuilder;
+public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends AbstractDao<ENTITY, BUILDER> implements Dao<ENTITY>, DaoDescriptor<ENTITY, BUILDER> {
 
     private final PrimaryKey<ENTITY, BUILDER> primaryKey;
     private final ParentColumn<ENTITY, PARENT, BUILDER, PARENTBUILDER> parentColumn;
@@ -34,7 +32,6 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
             throw new IllegalArgumentException("Must have a Primary Key");
         }
         this.primaryKey = daoDescriptor.primaryKey();
-        this.sqlBuilder = new SqlBuilder<>(daoDescriptor);
         this.parentColumn = daoDescriptor.parentColumn();
     }
 
@@ -54,12 +51,12 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
     @Override
     public Long insert(ENTITY item) {
         String sql = sqlBuilder.insert();
-        long id = DaoHelper.getNextSequenceValue(connection, primaryKey.getSequenceName());
+        long id = sqlRunner.runSequenceNextValue(sqlBuilder.nextSequence());
         primaryKey.optimisticSetKey(item, id);
         Envelope<ENTITY> envelope = newEnvelope(item, id);
         sqlRunner.insert(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item, id));
+            childrenDescriptor.saveChildren(connection, envelope);
         }
         return id;
     }
@@ -70,40 +67,27 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         Envelope<ENTITY> envelope = newEnvelope(item, primaryKey.getKey(item));
         sqlRunner.update(sql, envelope);
         for(ChildrenDescriptor<ENTITY,?, BUILDER,?> childrenDescriptor : childrenDescriptors){
-            childrenDescriptor.saveChildren(connection, new Envelope<>(item, primaryKey.getKey(item)));
+            childrenDescriptor.saveChildren(connection, envelope);
         }
     }
 
     @Override
     public void delete(ENTITY item) {
         String sql = sqlBuilder.delete();
-        DaoHelper.runPreparedDelete(connection, sql, primaryKey.getKey(item));
+        sqlRunner.runPreparedDelete(sql, primaryKey.getKey(item));
     }
 
     @Override
     public ENTITY select(long id) {
-        String primaryKeyName = primaryKey.getName();
-        ColumnSelection<ENTITY, BUILDER> columnSelection = select(primaryKeyName);
-        String sql = sqlBuilder.selectByColumns(columnSelection);
-        BUILDER builder = supplier().get();
-        primaryKey.setKey(builder, id);
-        ENTITY item = buildFunction().apply(builder);
-        // TODO : Stream.findFirst?
-        List<BUILDER> items = sqlRunner.selectByColumns(sql, supplier(),
-                select(primaryKeyName),
-                childrenDescriptors, item)
-                .collect(Collectors.toList());
-        return KeylessDaoImpl.fromSingletonList(mapBuilders(items));
+        Where where = new Where(primaryKey.getName(), Operator.EQUALS, id);
+        List<ENTITY> items = select(where);
+        return KeylessDaoImpl.fromSingletonList(items);
     }
 
     @Override
     public Stream<ENTITY> streamMany(List<Long> ids) {
-        String sql = sqlBuilder.select();
-        List<String> idStrings = ids.stream().map(Object::toString).collect(Collectors.toList());
-        String idsString = String.join(",", idStrings);
-        sql = sql + " and a." + primaryKey.getName() + " in (" + idsString + ")";
-        return sqlRunner.select(sql, supplier(), childrenDescriptors)
-                .map(buildFunction());
+        Where where = Where.inLong(primaryKey.getName(), ids);
+        return stream(where);
     }
 
     @Override
@@ -130,7 +114,7 @@ public class DaoImpl<ENTITY, PARENT, BUILDER, PARENTBUILDER> extends KeylessDaoI
         return this.sqlBuilder;
     }
 
-    protected Envelope<ENTITY> newEnvelope(ENTITY item, long id){
+    private Envelope<ENTITY> newEnvelope(ENTITY item, long id){
         if( parentColumn != null ){
             Long parentId = parentColumn.getParentId(item);
             if ( parentId != null ){
