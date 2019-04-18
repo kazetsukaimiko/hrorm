@@ -3,6 +3,9 @@ package org.hrorm;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  * Some {@link Converter} implementations that hrorm uses internally.
@@ -21,96 +24,72 @@ public class Converters {
 
     public static Converter<Instant, Timestamp> INSTANT_TIMESTAMP_CONVERTER = new InstantTimestampConverter();
 
-    /**
-     * This <code>Converter</code> translates between <code>Boolean</code> values and <code>String</code> values.
-     */
-    public static class BooleanStringConverter implements Converter<Boolean, String> {
+    public static class FunctionsConverter<I, T> implements Converter<I, T> {
+        private final Function<T, I> toFunction;
+        private final Function<I, T> fromFunction;
 
-        private final String trueRepresentation;
-        private final String falseRepresentation;
-
-        public BooleanStringConverter(String trueRepresentation, String falseRepresentation) {
-            this.trueRepresentation = trueRepresentation;
-            this.falseRepresentation = falseRepresentation;
+        FunctionsConverter(Function<T, I> toFunction, Function<I, T> fromFunction) {
+            this.toFunction = toFunction;
+            this.fromFunction = fromFunction;
         }
 
         @Override
-        public String from(Boolean aBoolean) {
-            if ( aBoolean == null ) {
-                return null;
-            }
-            return aBoolean ? trueRepresentation : falseRepresentation;
+        public T from(I item) {
+            return Optional.ofNullable(item)
+                    .map(fromFunction)
+                    .orElse(null);
         }
 
         @Override
-        public Boolean to(String s) {
-            if ( s == null ){
-                return null;
-            }
-            if (Objects.equals(s, trueRepresentation)) {
-                return Boolean.TRUE;
-            } else if (Objects.equals(s, falseRepresentation)) {
-                return Boolean.FALSE;
-            }
-            throw new HrormException("Unsupported string: " + s);
+        public I to(T value) {
+            return Optional.ofNullable(value)
+                    .map(toFunction)
+                    .orElse(null);
         }
     }
 
     /**
      * This <code>Converter</code> translates between <code>Boolean</code> values and <code>Long</code> values.
      */
-    public static class BooleanLongConverter implements Converter<Boolean, Long> {
-
-        private final long trueRepresentation;
-        private final long falseRepresentation;
-
-        public BooleanLongConverter(long trueRepresentation, long falseRepresentation){
-            this.trueRepresentation = trueRepresentation;
-            this.falseRepresentation = falseRepresentation;
-        }
-
-        @Override
-        public Long from(Boolean aBoolean) {
-            if ( aBoolean == null ) {
-                return null;
-            }
-            return aBoolean ? trueRepresentation : falseRepresentation;
-        }
-
-        @Override
-        public Boolean to(Long s) {
-            if ( s == null ){
-                return null;
-            }
-            if (s == trueRepresentation ){
-                return Boolean.TRUE;
-            } else if (s == falseRepresentation) {
-                return Boolean.FALSE;
-            }
-            throw new HrormException("Unsupported value: " + s);
+    public static class BooleanConverter<E> extends FunctionsConverter<Boolean, E> {
+        public BooleanConverter(E trueRepresentation, E falseRepresentation){
+            super(
+                    (l) -> Stream.of(Boolean.TRUE, Boolean.FALSE)
+                            .filter(b -> Objects.equals(l, b ? trueRepresentation : falseRepresentation))
+                            .findFirst()
+                            .orElseThrow(() -> new HrormException("Unsupported value: " + l)),
+                    (b) -> b ? trueRepresentation : falseRepresentation
+            );
         }
     }
 
     /**
-     * This <code>Converter</code> translates between <code>Instant</code> values and <code>Timestamp</code> values.
+     * This <code>Converter</code> translates between <code>Boolean</code> values and <code>String</code> values.
      */
-    public static class InstantTimestampConverter implements Converter<Instant, Timestamp> {
-        @Override
-        public Timestamp from(Instant item) {
-            if( item == null ){
-                return null;
-            }
-            Timestamp timestamp = Timestamp.from(item);
-            return timestamp;
-        }
-
-        @Override
-        public Instant to(Timestamp timestamp) {
-            if ( timestamp == null ) {
-                return null;
-            }
-            Instant instant = timestamp.toInstant();
-            return instant;
+    public static class BooleanStringConverter extends BooleanConverter<String> {
+        public BooleanStringConverter(String trueRepresentation, String falseRepresentation) {
+            super(trueRepresentation, falseRepresentation);
         }
     }
+
+    /**
+     * This <code>Converter</code> translates between <code>Boolean</code> values and <code>Long</code> values.
+     */
+    public static class BooleanLongConverter extends BooleanConverter<Long> {
+        public BooleanLongConverter(long trueRepresentation, long falseRepresentation){
+                super(trueRepresentation, falseRepresentation);
+        }
+    }
+
+
+
+    /**
+     * This <code>Converter</code> translates between <code>Instant</code> values and <code>Timestamp</code> values.
+     */
+    public static class InstantTimestampConverter extends FunctionsConverter<Instant, Timestamp> {
+        InstantTimestampConverter() {
+            super(Timestamp::toInstant, Timestamp::from);
+        }
+    }
+
 }
